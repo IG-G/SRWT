@@ -1,0 +1,7 @@
+{
+    "baseURI":"http://127.0.0.1:8000/",
+    "timeout":"10",
+    
+    "repositoryName":"Test strony www",
+    "testEnvironment":"CI pipeline #1"
+}
