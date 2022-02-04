@@ -22,7 +22,7 @@ public class ReportTests {
 
     public void beginTestCampaign() throws Exception {
         String data = JsonApiHandler.createJSONForTestCampaign(repositoryName, envName);
-        String response = connection.sendPostRequest("dummy/", data);
+        String response = connection.sendPostRequest("campaign/", data);
         System.out.println(response);
     }
 
