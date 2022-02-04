@@ -2,5 +2,5 @@
 .idea
 build
 __pycache__/
-venv
+API/venv/
 app.log
