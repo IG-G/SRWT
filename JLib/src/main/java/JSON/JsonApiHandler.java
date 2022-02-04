@@ -5,7 +5,7 @@ import org.json.simple.JSONObject;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class JSONAPIHandler {
+public class JsonApiHandler {
 
     private static String getCurrentDayAndTime() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");

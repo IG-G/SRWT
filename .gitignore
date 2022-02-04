@@ -1,6 +1,11 @@
 .git
+
+# JLib files
+.gradle
 .idea
 build
+
+# API files
 __pycache__/
 API/venv/
 app.log

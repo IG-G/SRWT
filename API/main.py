@@ -22,12 +22,22 @@ class Item(BaseModel):
 
 #cursor = db_connection.cursor()
 
+TestCampaignsId = [0]
+
 app = FastAPI()
 
 
 @app.get("/")
 async def get_index():
     return "Hello word"
+
+
+@app.post("/dummy/")
+async def create_dummy_id():
+    i = TestCampaignsId[-1]
+    i = i + 1
+    TestCampaignsId.append(i)
+    return i
 
 
 @app.post("/items/")

@@ -1,8 +1,7 @@
 package ReportTests;
 
-import Connection.ConnectionClient;
-import JSON.JSONAPIHandler;
-import JSON.JSONConfigHandler;
+import JSON.JsonApiHandler;
+import JSON.JsonConfigHandler;
 
 public class ReportTests {
 
@@ -12,7 +11,7 @@ public class ReportTests {
     final private String envName;
 
     public ReportTests(String confFile) throws Exception {
-        JSONConfigHandler handler = new JSONConfigHandler(confFile);
+        JsonConfigHandler handler = new JsonConfigHandler(confFile);
         String baseURI = handler.getParamFromJSONConfig("baseURI");
         String timeout = handler.getParamFromJSONConfig("timeout");
         this.connection = new ConnectionClient(baseURI, Integer.parseInt(timeout));
@@ -22,8 +21,9 @@ public class ReportTests {
     }
 
     public void beginTestCampaign() throws Exception {
-        String data = JSONAPIHandler.createJSONForTestCampaign(repositoryName, envName);
-        connection.sendRequest("PUT", "campaign/begin", data);
+        String data = JsonApiHandler.createJSONForTestCampaign(repositoryName, envName);
+        String response = connection.sendPostRequest("dummy/", data);
+        System.out.println(response);
     }
 
     public void beginTestCase() {
