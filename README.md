@@ -6,7 +6,7 @@ Installing dependencies with pip freeze:
 
 `pip install -r requirements.txt`
 
-To run a server:
+To run a server (in API directory):
 
-`API/run_server.sh`
+`run_server.sh`
 
