@@ -6,9 +6,7 @@ import JSON.JsonConfigHandler;
 public class ReportTests {
 
     final private ConnectionClient connection;
-
-    final private String repositoryName;
-    final private String envName;
+    private final TestCampaignParameters campaignParameters;
 
     public ReportTests(String confFile) throws Exception {
         JsonConfigHandler handler = new JsonConfigHandler(confFile);
@@ -16,13 +14,16 @@ public class ReportTests {
         String timeout = handler.getParamFromJSONConfig("timeout");
         this.connection = new ConnectionClient(baseURI, Integer.parseInt(timeout));
 
-        repositoryName = handler.getParamFromJSONConfig("repositoryName");
-        envName = handler.getParamFromJSONConfig("testEnvironment");
+        String repositoryName = handler.getParamFromJSONConfig("repositoryName");
+        String envName = handler.getParamFromJSONConfig("testEnvironment");
+        campaignParameters = new TestCampaignParameters(repositoryName, envName);
     }
 
     public void beginTestCampaign() throws Exception {
-        String data = JsonApiHandler.createJSONForTestCampaign(repositoryName, envName);
-        String response = connection.sendPostRequest("campaign/", data);
+        String data = JsonApiHandler.createJSONForNewTestCampaign(campaignParameters.getRepositoryName(),
+                campaignParameters.getEnvName());
+        String response = connection.sendPostRequest("campaigns/", data);
+        campaignParameters.setCampaignId(JsonApiHandler.getCampaignIDFromResponse(response));
         System.out.println(response);
     }
 
@@ -38,7 +39,10 @@ public class ReportTests {
 
     }
 
-    public void endTestCampaign() {
-
+    public void endTestCampaign() throws Exception {
+        String data = JsonApiHandler.createJSONForEndingOfTestCampaign("PASSED");
+        String campaignId = String.valueOf(campaignParameters.getCampaignId());
+        System.out.println(campaignId);
+        connection.sendPutRequest("campaigns/" + campaignId, data);
     }
 }

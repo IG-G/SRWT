@@ -9,3 +9,4 @@ build
 __pycache__/
 API/venv/
 app.log
+env.py

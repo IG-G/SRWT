@@ -26,8 +26,7 @@ public class ConnectionClient {
     private void initURIWithDashAtTheEnd(String uri) {
         if (!uri.endsWith("/")) {
             serverAddress = uri + "/";
-        }
-        else
+        } else
             serverAddress = uri;
     }
 
@@ -82,6 +81,22 @@ public class ConnectionClient {
 
     public String sendPostRequest(String endpoint, String data) throws Exception {
         HttpRequest request = buildRequest("POST", endpoint, data);
+        HttpResponse<String> response;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new Exception("Error occurred when sending request: " + e.getMessage());
+        }
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            return response.body();
+        } else {
+            throw new Exception("Error from server. Status code: "
+                    + response.statusCode() + " Error message: " + response.body());
+        }
+    }
+
+    public String sendPutRequest(String endpoint, String data) throws Exception {
+        HttpRequest request = buildRequest("PUT", endpoint, data);
         HttpResponse<String> response;
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
