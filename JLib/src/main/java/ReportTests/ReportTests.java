@@ -6,9 +6,7 @@ import JSON.JsonConfigHandler;
 public class ReportTests {
 
     final private ConnectionClient connection;
-
-    final private String repositoryName;
-    final private String envName;
+    private final TestCampaign campaign;
 
     public ReportTests(String confFile) throws Exception {
         JsonConfigHandler handler = new JsonConfigHandler(confFile);
@@ -16,14 +14,18 @@ public class ReportTests {
         String timeout = handler.getParamFromJSONConfig("timeout");
         this.connection = new ConnectionClient(baseURI, Integer.parseInt(timeout));
 
-        repositoryName = handler.getParamFromJSONConfig("repositoryName");
-        envName = handler.getParamFromJSONConfig("testEnvironment");
+        String repositoryName = handler.getParamFromJSONConfig("repositoryName");
+        String envName = handler.getParamFromJSONConfig("testEnvironment");
+        campaign = new TestCampaign(repositoryName, envName);
     }
 
     public void beginTestCampaign() throws Exception {
-        String data = JsonApiHandler.createJSONForTestCampaign(repositoryName, envName);
-        String response = connection.sendPostRequest("campaign/", data);
-        System.out.println(response);
+        String data = JsonApiHandler.createJSONForNewTestCampaign(campaign.getRepositoryName(),
+                campaign.getEnvName());
+        String response = connection.sendPostRequest("campaigns/", data);
+        campaign.setCampaignId(JsonApiHandler.getCampaignIDFromResponse(response));
+        campaign.setStatus(Status.STARTED);
+        System.out.println("Response for beginning campaign: " + response);
     }
 
     public void beginTestCase() {
@@ -38,7 +40,12 @@ public class ReportTests {
 
     }
 
-    public void endTestCampaign() {
+    public void endTestCampaign() throws Exception {
+        if(campaign.getStatus() != Status.FAILED)
+            campaign.setStatus(Status.PASSED);
 
+        String data = JsonApiHandler.createJSONForEndingOfTestCampaign(campaign.getStatus().toString());
+        String campaignId = String.valueOf(campaign.getCampaignId());
+        connection.sendPutRequest("campaigns/" + campaignId, data);
     }
 }
