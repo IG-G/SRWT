@@ -24,13 +24,9 @@ class TestCampaign(TestCampaignBase):
     repositoryName: str
     envName: str
     id: int
-    begTime: Optional[datetime.datetime]
+    begTime: datetime.datetime
     endTime: Optional[datetime.datetime]
     status: str
 
     class Config:
         orm_mode = True
-
-
-class Empty(BaseModel):
-    pass

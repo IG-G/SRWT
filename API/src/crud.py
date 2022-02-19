@@ -33,7 +33,10 @@ def create_test_campaign(db: Session, campaign: schemas.TestCampaignCreate):
 
 
 def end_test_campaign(db: Session, campaign_id: int, campaign: schemas.TestCampaignEnd):
-    # TODO not safe!!!
-    sql = f"UPDATE TestCampaign SET status='{campaign.status}', endTime={func.now()} WHERE id={campaign_id}"
-    db.execute(sql)
+    db.query(models.TestCampaign).filter(models.TestCampaign.id == campaign_id).update(
+        values={
+            models.TestCampaign.status: campaign.status,
+            models.TestCampaign.endTime: func.now(),
+        }
+    )
     db.commit()
