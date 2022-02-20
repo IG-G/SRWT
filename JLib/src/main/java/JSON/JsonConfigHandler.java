@@ -4,6 +4,7 @@ import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
 
 import java.io.*;
+import java.util.NoSuchElementException;
 
 public class JsonConfigHandler {
     JSONObject json;
@@ -14,8 +15,11 @@ public class JsonConfigHandler {
         json = (JSONObject) parser.parse(fileReader);
     }
 
-    public String getParamFromJSONConfig(String attributeName) {
-        return (String)json.get(attributeName);
+    public String getParamFromJSONConfig(String attributeName) throws NoSuchElementException {
+        String attribute = (String) json.get(attributeName);
+        if(attribute == null)
+            throw new NoSuchElementException("No such attribute as " + attributeName);
+        return attribute;
     }
 }
 

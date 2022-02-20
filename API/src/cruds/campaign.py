@@ -3,7 +3,8 @@ import random
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from . import models, schemas
+from src import models
+from src.schemas.test_campaign_schema import TestCampaignCreate, TestCampaignEnd
 
 
 def get_test_campaign_by_id(db: Session, campaign_id: int):
@@ -18,11 +19,11 @@ def get_test_campaigns(db: Session, limit: int = 100):
     return db.query(models.TestCampaign).limit(limit).all()
 
 
-def create_test_campaign(db: Session, campaign: schemas.TestCampaignCreate):
+def create_test_campaign(db: Session, campaign: TestCampaignCreate):
     new_id = random.randint(0, 1000)
     db_test_campaign = models.TestCampaign(
         id=new_id,
-        repositoryName=campaign.repositoryName,
+        campaignName=campaign.campaignName,
         envName=campaign.envName,
         status="STARTED",
     )
@@ -32,7 +33,7 @@ def create_test_campaign(db: Session, campaign: schemas.TestCampaignCreate):
     return db_test_campaign
 
 
-def end_test_campaign(db: Session, campaign_id: int, campaign: schemas.TestCampaignEnd):
+def end_test_campaign(db: Session, campaign_id: int, campaign: TestCampaignEnd):
     db.query(models.TestCampaign).filter(models.TestCampaign.id == campaign_id).update(
         values={
             models.TestCampaign.status: campaign.status,

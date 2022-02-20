@@ -10,3 +10,4 @@ __pycache__/
 API/venv/
 app.log
 env.py
+*.log

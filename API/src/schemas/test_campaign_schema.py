@@ -9,7 +9,7 @@ class TestCampaignBase(BaseModel):
 
 
 class TestCampaignCreate(TestCampaignBase):
-    repositoryName: str
+    campaignName: str
     envName: str
 
     class Config:
@@ -19,9 +19,12 @@ class TestCampaignCreate(TestCampaignBase):
 class TestCampaignEnd(TestCampaignBase):
     status: str
 
+    class Config:
+        orm_mode = True
+
 
 class TestCampaign(TestCampaignBase):
-    repositoryName: str
+    campaignName: str
     envName: str
     id: int
     begTime: datetime.datetime
