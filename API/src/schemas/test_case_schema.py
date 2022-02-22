@@ -1,21 +1,16 @@
 import datetime
 from typing import Optional
-
 from pydantic import BaseModel
 
 
-class TestCaseBase(BaseModel):
-    pass
-
-
-class TestCaseCreate(TestCaseBase):
+class TestCaseCreate(BaseModel):
     testCaseName: str
 
     class Config:
         orm_mode = True
 
 
-class TestCaseEnd(TestCaseBase):
+class TestCaseEnd(BaseModel):
     status: str
 
     class Config:
@@ -32,3 +27,7 @@ class TestCase(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class TestCaseFail(BaseModel):
+    message: str

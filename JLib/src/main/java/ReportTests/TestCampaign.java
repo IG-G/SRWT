@@ -1,5 +1,8 @@
 package ReportTests;
 
+import Enums.CampaignStatus;
+import Enums.TestCaseStatus;
+
 import java.util.logging.Logger;
 
 public class TestCampaign {
@@ -7,17 +10,17 @@ public class TestCampaign {
     final private String campaignName;
     final private String envName;
 
-    private Status campaignStatus;
+    private CampaignStatus campaignStatus;
     private long campaignId;
 
     private long currentTestCaseId;
-    private Status currentTestCaseStatus;
+    private TestCaseStatus currentTestCaseCampaignStatus;
 
     public TestCampaign(String campaignName, String envName) {
         log = Logger.getLogger(TestCampaign.class.getName());
         this.campaignName = campaignName;
         this.envName = envName;
-        this.campaignStatus = Status.CREATED;
+        this.campaignStatus = CampaignStatus.CREATED;
     }
 
     public void setCampaignId(long campaignId) {
@@ -36,14 +39,13 @@ public class TestCampaign {
         return this.envName;
     }
 
-    public Status getCampaignStatus() {
+    public CampaignStatus getCampaignStatus() {
         return campaignStatus;
     }
 
-    public void setCampaignStatus(Status newStatus) throws Exception {
-        log.info("New status to be set:" + newStatus);
-        if (validateStatusChange(newStatus))
-            campaignStatus = newStatus;
+    public void setCampaignStatus(CampaignStatus newCampaignStatus) {
+        log.info("New status to be set:" + newCampaignStatus);
+        campaignStatus = newCampaignStatus;
     }
 
     public void setCurrentTestCaseId(long currentTestCaseId) {
@@ -54,33 +56,34 @@ public class TestCampaign {
         return this.currentTestCaseId;
     }
 
-    public Status getCurrentTestCaseStatus() {
-        return this.currentTestCaseStatus;
+    public TestCaseStatus getCurrentTestCaseStatus() {
+        return this.currentTestCaseCampaignStatus;
     }
 
-    public void setCurrentTestCaseStatus(Status newStatus) {
-        log.info("New status to be set:" + newStatus);
-        currentTestCaseStatus = newStatus;
+    public void setCurrentTestCaseStatus(TestCaseStatus newCampaignStatus) {
+        log.info("New status to be set:" + newCampaignStatus);
+        currentTestCaseCampaignStatus = newCampaignStatus;
     }
 
-    private Boolean validateStatusChange(Status newStatus) throws Exception {
+    /*
+    private Boolean validateStatusChange(CampaignStatus newCampaignStatus) throws Exception {
         //TODO popraw
-        switch (newStatus) {
+        switch (newCampaignStatus) {
             case CREATED:
                 throw new Exception("Cannot assign status created to already existing test campaign");
             case STARTED:
-                if (campaignStatus == Status.CREATED)
+                if (campaignStatus == CampaignStatus.CREATED)
                     return true;
                 else
                     throw new Exception("Cannot start test campaign from other status than CREATED");
             case PASSED:
             case FAILED:
-                if (campaignStatus == Status.STARTED)
+                if (campaignStatus == CampaignStatus.STARTED)
                     return true;
                 else
                     throw new Exception("Test campaign can be passed/failed only from status STARTED");
             default:
-                throw new UnsupportedOperationException("Status: " + newStatus + " not implemented");
+                throw new UnsupportedOperationException("CampaignStatus: " + newCampaignStatus + " not implemented");
         }
-    }
+    }*/
 }

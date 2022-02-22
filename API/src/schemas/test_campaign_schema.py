@@ -1,14 +1,10 @@
 import datetime
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
 
-class TestCampaignBase(BaseModel):
-    pass
-
-
-class TestCampaignCreate(TestCampaignBase):
+class TestCampaignCreate(BaseModel):
     campaignName: str
     envName: str
 
@@ -16,14 +12,14 @@ class TestCampaignCreate(TestCampaignBase):
         orm_mode = True
 
 
-class TestCampaignEnd(TestCampaignBase):
+class TestCampaignEnd(BaseModel):
     status: str
 
     class Config:
         orm_mode = True
 
 
-class TestCampaign(TestCampaignBase):
+class TestCampaign(BaseModel):
     campaignName: str
     envName: str
     id: int

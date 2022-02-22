@@ -1,5 +1,7 @@
 package ReportTests;
 
+import Enums.CampaignStatus;
+import Enums.TestCaseStatus;
 import JSON.JsonApiHandler;
 import JSON.JsonConfigHandler;
 
@@ -33,7 +35,7 @@ public class ReportTests {
         String response = connection.sendPostRequest("campaigns/", data);
         log_debug.info("Response from server: " + response);
         campaign.setCampaignId(JsonApiHandler.getIDFromResponse(response));
-        campaign.setCampaignStatus(Status.STARTED);
+        campaign.setCampaignStatus(CampaignStatus.RUNNING);
     }
 
     public void beginTestCase(String testCaseName) throws Exception {
@@ -43,28 +45,36 @@ public class ReportTests {
         String response = connection.sendPostRequest("testcases/" + campaignId, data);
         log_debug.info("Response from server: " + response);
         campaign.setCurrentTestCaseId(JsonApiHandler.getIDFromResponse(response));
-        campaign.setCurrentTestCaseStatus(Status.STARTED);
+        campaign.setCurrentTestCaseStatus(TestCaseStatus.IN_PROGRESS);
     }
 
-    public void reportFailure() {
-
+    public void reportFailure(String message, Boolean end_test_case) throws Exception {
+        String data = JsonApiHandler.createJSONForReportingFailure(message);
+        log_debug.info("Data to be send to server: " + data);
+        String testCaseId = String.valueOf(campaign.getCurrentTestCaseId());
+        String campaignId = String.valueOf(campaign.getCampaignId());
+        connection.sendPostRequest("testcases/" + campaignId + "/" + testCaseId + "/fail", data);
+        campaign.setCurrentTestCaseStatus(TestCaseStatus.FAILED);
+        if(end_test_case) {
+            endTestCase();
+        }
     }
 
     public void endTestCase() throws Exception {
-        if(campaign.getCurrentTestCaseStatus() != Status.FAILED)
-            campaign.setCurrentTestCaseStatus(Status.PASSED);
+        if(campaign.getCurrentTestCaseStatus() != TestCaseStatus.FAILED)
+            campaign.setCurrentTestCaseStatus(TestCaseStatus.PASSED);
 
         String data = JsonApiHandler.createJSONForEndingOfTestCase(campaign.getCurrentTestCaseStatus().toString());
         log_debug.info("Data to be send to server: " + data);
         String testCaseId = String.valueOf(campaign.getCurrentTestCaseId());
         String campaignId = String.valueOf(campaign.getCampaignId());
-        connection.sendPutRequest("testcases/" + campaignId + "/" + testCaseId, data);
+        connection.sendPutRequest("testcases/" + campaignId + "/" + testCaseId + "/end", data);
+        campaign.setCurrentTestCaseId(-1);
+        campaign.setCurrentTestCaseStatus(TestCaseStatus.NOT_STARTED);
     }
 
     public void endTestCampaign() throws Exception {
-        if(campaign.getCampaignStatus() != Status.FAILED)
-            campaign.setCampaignStatus(Status.PASSED);
-
+        campaign.setCampaignStatus(CampaignStatus.FINISHED);
         String data = JsonApiHandler.createJSONForEndingOfTestCampaign(campaign.getCampaignStatus().toString());
         log_debug.info("Data to be send to server: " + data);
         String campaignId = String.valueOf(campaign.getCampaignId());

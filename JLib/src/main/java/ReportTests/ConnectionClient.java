@@ -75,7 +75,7 @@ public class ConnectionClient {
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             return response.body();
         } else {
-            throw new Exception("Error from server. Status code: "
+            throw new Exception("Error from server. CampaignStatus code: "
                     + response.statusCode() + " Error message: " + response.body());
         }
     }
@@ -91,7 +91,7 @@ public class ConnectionClient {
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             return response.body();
         } else {
-            throw new Exception("Error from server. Status code: "
+            throw new Exception("Error from server. CampaignStatus code: "
                     + response.statusCode() + " Error message: " + response.body());
         }
     }
@@ -107,7 +107,7 @@ public class ConnectionClient {
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             return response.body();
         } else {
-            throw new Exception("Error from server. Status code: "
+            throw new Exception("Error from server. CampaignStatus code: "
                     + response.statusCode() + " Error message: " + response.body());
         }
     }

@@ -30,6 +30,12 @@ public class JsonApiHandler {
         return json.toJSONString();
     }
 
+    public static String createJSONForReportingFailure(String message) {
+        JSONObject json = new JSONObject();
+        json.put("message", message);
+        return json.toJSONString();
+    }
+
     public static long getIDFromResponse(String response) throws ParseException {
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(response);

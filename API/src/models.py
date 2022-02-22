@@ -29,3 +29,28 @@ class TestCase(Base):
     testCampaignID = Column(Integer, ForeignKey("TestCampaign.id"))
 
     testCampaign = relationship("TestCampaign", back_populates="testCases")
+    failsInfo = relationship("FailInfo", back_populates="testCase")
+    logsInfo = relationship("LogInfo", back_populates="testCase")
+
+
+class FailInfo(Base):
+    __tablename__ = "FailInfo"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=False)
+    reportTime = Column(DateTime, default=datetime.datetime.now())
+    message = Column(String(120))
+    testCaseID = Column(Integer, ForeignKey("TestCase.id"))
+
+    testCase = relationship("TestCase", back_populates="failsInfo")
+
+
+class LogInfo(Base):
+    __tablename__ = "LogInfo"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=False)
+    reportTime = Column(DateTime, default=datetime.datetime.now())
+    message = Column(String(120))
+    level_status = Column(String(30))
+    testCaseID = Column(Integer, ForeignKey("TestCase.id"))
+
+    testCase = relationship("TestCase", back_populates="logsInfo")

@@ -2,8 +2,10 @@ import random
 
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
+from fastapi import HTTPException
 
 from src import models
+from src.enums import CampaignStatus
 from src.schemas.test_campaign_schema import TestCampaignCreate, TestCampaignEnd
 
 
@@ -25,7 +27,7 @@ def create_test_campaign(db: Session, campaign: TestCampaignCreate):
         id=new_id,
         campaignName=campaign.campaignName,
         envName=campaign.envName,
-        status="STARTED",
+        status=CampaignStatus.RUNNING.name,
     )
     db.add(db_test_campaign)
     db.commit()
@@ -34,10 +36,18 @@ def create_test_campaign(db: Session, campaign: TestCampaignCreate):
 
 
 def end_test_campaign(db: Session, campaign_id: int, campaign: TestCampaignEnd):
-    db.query(models.TestCampaign).filter(models.TestCampaign.id == campaign_id).update(
-        values={
-            models.TestCampaign.status: campaign.status,
-            models.TestCampaign.endTime: func.now(),
-        }
+    result = (
+        db.query(models.TestCampaign)
+        .filter(models.TestCampaign.id == campaign_id)
+        .update(
+            values={
+                models.TestCampaign.status: campaign.status,
+                models.TestCampaign.endTime: func.now(),
+            }
+        )
     )
+    if result is None:
+        raise HTTPException(
+            status_code=404, detail=f"Campaign {campaign_id} does not exist"
+        )
     db.commit()

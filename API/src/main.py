@@ -7,7 +7,12 @@ from src.schemas.test_campaign_schema import (
     TestCampaign,
     TestCampaignEnd,
 )
-from src.schemas.test_case_schema import TestCaseCreate, TestCase, TestCaseEnd
+from src.schemas.test_case_schema import (
+    TestCaseCreate,
+    TestCase,
+    TestCaseEnd,
+    TestCaseFail,
+)
 from src.cruds import campaign as crud_campaign
 from src.cruds import test_case as crud_test_case
 from .database import SessionLocal, engine
@@ -27,9 +32,7 @@ def get_db():
 
 
 @app.post("/campaigns/", response_model=TestCampaign)
-def create_test_campaign(
-    campaign: TestCampaignCreate, db: Session = Depends(get_db)
-):
+def create_test_campaign(campaign: TestCampaignCreate, db: Session = Depends(get_db)):
     return crud_campaign.create_test_campaign(db=db, campaign=campaign)
 
 
@@ -62,16 +65,12 @@ def create_test_case(
 
 
 @app.get("/testcases/{campaign_id}", response_model=List[TestCase])
-def get_test_cases(
-    campaign_id: int, limit: int = 100, db: Session = Depends(get_db)
-):
+def get_test_cases(campaign_id: int, limit: int = 100, db: Session = Depends(get_db)):
     return crud_test_case.get_test_cases(db, campaign_id=campaign_id, limit=limit)
 
 
 @app.get("/testcases/{campaign_id}/{test_case_id}", response_model=TestCase)
-def get_test_case(
-    campaign_id: int, test_case_id: int, db: Session = Depends(get_db)
-):
+def get_test_case(campaign_id: int, test_case_id: int, db: Session = Depends(get_db)):
     test_case = crud_test_case.get_test_case_by_id(
         db, campaign_id=campaign_id, test_case_id=test_case_id
     )
@@ -80,7 +79,7 @@ def get_test_case(
     return test_case
 
 
-@app.put("/testcases/{campaign_id}/{test_case_id}")
+@app.put("/testcases/{campaign_id}/{test_case_id}/end")
 def end_test_case(
     campaign_id: int,
     test_case_id: int,
@@ -89,4 +88,16 @@ def end_test_case(
 ):
     crud_test_case.end_test_case(
         db, campaign_id=campaign_id, test_case_id=test_case_id, test_case=test_case
+    )
+
+
+@app.post("/testcases/{campaign_id}/{test_case_id}/fail")
+def fail_test_case(
+    campaign_id: int,
+    test_case_id: int,
+    fail_info: TestCaseFail,
+    db: Session = Depends(get_db),
+):
+    crud_test_case.fail_test_case(
+        db, campaign_id=campaign_id, test_case_id=test_case_id, fail_info=fail_info
     )
