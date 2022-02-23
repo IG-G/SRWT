@@ -1,19 +1,13 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.*;
 
 import ReportTests.RemoteTestReporter;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Iterator;
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SampleTest {
 
     private RemoteTestReporter reporter;
-    private final Iterator<Method> methodIterator = Arrays.stream(SampleTest.class.getMethods()).iterator();
     private long testCaseID;
 
     @BeforeAll
@@ -23,13 +17,13 @@ class SampleTest {
     }
 
     @BeforeEach
-    void beginTestCase() throws Exception {
-        testCaseID = reporter.beginTestCase(methodIterator.next().toString().substring(0, 20));
+    void beginTestCase(TestInfo testInfo) throws Exception {
+        reporter.beginTestCase(testInfo.getDisplayName());
     }
 
     @AfterEach
     void endTestCase() throws Exception {
-        reporter.endTestCase(testCaseID);
+        reporter.endTestCase();
     }
 
     @AfterAll
@@ -58,7 +52,7 @@ class SampleTest {
             assertEquals(1, 3 - 4);
         }
         catch (AssertionError err) {
-            reporter.reportFailure(testCaseID, err.getMessage(), false);
+            reporter.reportFailure(err.getMessage(), false);
             throw err;
         }
     }

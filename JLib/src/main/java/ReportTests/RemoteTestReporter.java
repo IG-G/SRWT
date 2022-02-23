@@ -3,35 +3,18 @@ package ReportTests;
 import Enums.CampaignStatus;
 import JSON.JsonConfigHandler;
 
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 public class RemoteTestReporter {
-
-    private final TestCampaign campaign;
-    private final ArrayList<TestCase> testCases;
     private final Logger log;
 
-    private TestCase getTestCaseByID(long testCaseID) {
-        for (TestCase testCase : testCases) {
-            if (testCase.getTestCaseID() == testCaseID)
-                return testCase;
-        }
-        throw new NoSuchElementException("Cannot find test case with id " + testCaseID);
-    }
-
-    private void removeTestCase(long testCaseID) {
-        if (!testCases.removeIf(testCase -> testCase.getTestCaseID() == testCaseID))
-            throw new NoSuchElementException("Cannot find test case with id " + testCaseID);
-    }
+    private final TestCampaign campaign;
+    private TestCase testCase;
 
     public RemoteTestReporter(String confFile) throws Exception {
         log = Logger.getLogger(RemoteTestReporter.class.getName());
         log.addHandler(new FileHandler("lib.log"));
-
-        testCases = new ArrayList<>();
 
         JsonConfigHandler handler = new JsonConfigHandler(confFile);
         String baseURI = handler.getParamFromJSONConfig("baseURI");
@@ -50,26 +33,24 @@ public class RemoteTestReporter {
         log.info("Successfully began test campaign");
     }
 
-    public long beginTestCase(String testCaseName) throws Exception {
-        TestCase newTestCase = new TestCase(campaign.getConnection(), campaign.getID());
-        long testCaseID = newTestCase.beginTestCase(testCaseName);
-        testCases.add(newTestCase);
-        log.info("Successfully began test case " + testCaseName + " with id " + testCaseID);
-        return testCaseID;
+    public void beginTestCase(String testCaseName) throws Exception {
+        testCase = new TestCase(campaign.getConnection(), campaign.getID());
+        testCase.beginTestCase(testCaseName);
+        log.info("Successfully began test case " + testCaseName + " with id " + testCase.getTestCaseID());
     }
 
-    public void reportFailure(long testCaseID, String message, Boolean shouldEndTestCase) throws Exception {
-        getTestCaseByID(testCaseID).failTestCase(message);
+    public void reportFailure(String message, Boolean shouldEndTestCase) throws Exception {
+        testCase.failTestCase(message);
         campaign.setFailStatus();
-        log.info("Successfully reported failure for test case " + testCaseID);
+        log.info("Successfully reported failure for test case " + testCase.getTestCaseID());
         if (shouldEndTestCase)
-            endTestCase(testCaseID);
+            endTestCase();
     }
 
-    public void endTestCase(long testCaseID) throws Exception {
-        getTestCaseByID(testCaseID).endTestCase();
-        removeTestCase(testCaseID);
-        log.info("Successfully ended test case " + testCaseID);
+    public void endTestCase() throws Exception {
+        testCase.endTestCase();
+        log.info("Successfully ended test case " + testCase.getTestCaseID());
+        testCase = null;
     }
 
     public void endTestCampaign() throws Exception {

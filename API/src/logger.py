@@ -1,4 +1,3 @@
-import logging
+from logging import getLogger
 
-log = logging.getLogger()
-log.addHandler(logging.StreamHandler())
+log = getLogger("Log")

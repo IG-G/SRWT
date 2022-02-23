@@ -6,8 +6,9 @@ from fastapi import HTTPException
 
 from src import models
 from src.logger import log
-from src.enums import CampaignStatus
+from src.enums import CampaignStatus, check_if_campaign_status_is_valid
 from src.schemas.test_campaign_schema import TestCampaignCreate, TestCampaignEnd
+from src.const import const
 
 
 def get_test_campaign_by_id(db: Session, campaign_id: int):
@@ -25,6 +26,17 @@ def get_test_campaigns(db: Session, limit: int = 100):
 
 
 def create_test_campaign(db: Session, campaign: TestCampaignCreate):
+    if len(campaign.campaignName) > const.MAX_CAMPAIGN_NAME:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Campaign name exceeds max length ({const.MAX_CAMPAIGN_NAME})",
+        )
+    if len(campaign.envName) > const.MAX_ENV_NAME:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Campaign env exceeds max length ({const.MAX_ENV_NAME})",
+        )
+
     new_id = random.randint(0, 1000)
     db_test_campaign = models.TestCampaign(
         id=new_id,
@@ -40,6 +52,10 @@ def create_test_campaign(db: Session, campaign: TestCampaignCreate):
 
 
 def end_test_campaign(db: Session, campaign_id: int, campaign: TestCampaignEnd):
+    if not check_if_campaign_status_is_valid(campaign.status):
+        raise HTTPException(
+            status_code=422, detail=f"Campaign status {campaign.status} does not exist"
+        )
     log.info("End test campaign", id=campaign_id, data=campaign)
     result = (
         db.query(models.TestCampaign)

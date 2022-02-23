@@ -5,9 +5,10 @@ from sqlalchemy.sql import func
 
 from src.cruds.campaign import get_test_campaign_by_id
 from src.logger import log
-from src.enums import TestCaseStatus
+from src.enums import TestCaseStatus, check_if_test_case_status_is_valid
 from src import models
 from src.schemas.test_case_schema import TestCaseCreate, TestCaseEnd, TestCaseFail
+from src.const import const
 
 
 def get_test_case_by_id(db: Session, campaign_id: int, test_case_id: int):
@@ -35,6 +36,11 @@ def create_test_case(db: Session, test_case: TestCaseCreate, campaign_id: int):
         raise HTTPException(
             status_code=404, detail=f"Campaign: {campaign_id} does not exist"
         )
+    if len(test_case.testCaseName) > const.MAX_TEST_CASE_NAME:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Test case name exceeds max length ({const.MAX_TEST_CASE_NAME})",
+        )
     new_id = random.randint(0, 1000)
     db_test_case = models.TestCase(
         id=new_id,
@@ -51,6 +57,10 @@ def create_test_case(db: Session, test_case: TestCaseCreate, campaign_id: int):
 def end_test_case(
     db: Session, test_case: TestCaseEnd, test_case_id: int, campaign_id: int
 ):
+    if not check_if_test_case_status_is_valid(test_case.status):
+        raise HTTPException(
+            status_code=422, detail=f"Status {test_case.status} does not exist"
+        )
     log.info("Results for test case", test_case=test_case_id, status=test_case.status)
     result = (
         db.query(models.TestCase)
@@ -77,6 +87,11 @@ def end_test_case(
 def fail_test_case(
     db: Session, campaign_id: int, test_case_id: int, fail_info: TestCaseFail
 ):
+    if len(fail_info.message) > const.MAX_MESSAGE_LENGTH:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Message exceeds max length ({const.MAX_MESSAGE_LENGTH})",
+        )
     db_fail_info = models.FailInfo(
         testCaseID=test_case_id,
         message=fail_info.message,

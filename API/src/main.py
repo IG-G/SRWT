@@ -32,7 +32,9 @@ def get_db():
 
 
 @app.post("/campaigns/begin", response_model=TestCampaign)
-def create_test_campaign(new_campaign: TestCampaignCreate, db: Session = Depends(get_db)):
+def create_test_campaign(
+    new_campaign: TestCampaignCreate, db: Session = Depends(get_db)
+):
     return crud_campaign.create_test_campaign(db=db, campaign=new_campaign)
 
 
@@ -60,7 +62,9 @@ def end_test_campaign(
 def begin_test_case(
     campaign_id: int, test_case: TestCaseCreate, db: Session = Depends(get_db)
 ):
-    return crud_test_case.create_test_case(db, test_case=test_case, campaign_id=campaign_id)
+    return crud_test_case.create_test_case(
+        db, test_case=test_case, campaign_id=campaign_id
+    )
 
 
 @app.get("/testcases/{campaign_id}", response_model=List[TestCase])

@@ -12,15 +12,15 @@ drop table TestCampaign;
 
 create table TestCampaign(
     id INT(6) PRIMARY KEY,
-    campaignName VARCHAR(30) NOT NULL,
-    envName VARCHAR(30) NOT NULL,
+    campaignName VARCHAR(60) NOT NULL,
+    envName VARCHAR(60) NOT NULL,
     begTime DATETIME NOT NULL,
     endTime DATETIME DEFAULT null,
     status VARCHAR(30) NOT NULL
 );
 create table TestCase(
     id INT(6) PRIMARY KEY,
-    testCaseName VARCHAR(30) NOT NULL,
+    testCaseName VARCHAR(60) NOT NULL,
     begTime DATETIME NOT NULL,
     endTime DATETIME DEFAULT null,
     status VARCHAR(30) NOT NULL,
