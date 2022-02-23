@@ -8,7 +8,6 @@ import ReportTests.RemoteTestReporter;
 class SampleTest {
 
     private RemoteTestReporter reporter;
-    private long testCaseID;
 
     @BeforeAll
     void init() throws Exception {
