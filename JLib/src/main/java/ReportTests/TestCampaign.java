@@ -1,89 +1,53 @@
 package ReportTests;
 
 import Enums.CampaignStatus;
-import Enums.TestCaseStatus;
-
-import java.util.logging.Logger;
+import Enums.HttpMethod;
+import JSON.JsonApiHandler;
 
 public class TestCampaign {
-    private final Logger log;
+    private final ConnectionClient connection;
+
+    private final String baseEndpoint = "campaigns/";
     final private String campaignName;
     final private String envName;
+    private CampaignStatus status;
+    private long id;
 
-    private CampaignStatus campaignStatus;
-    private long campaignId;
 
-    private long currentTestCaseId;
-    private TestCaseStatus currentTestCaseCampaignStatus;
-
-    public TestCampaign(String campaignName, String envName) {
-        log = Logger.getLogger(TestCampaign.class.getName());
+    public TestCampaign(ConnectionClient connection, String campaignName, String envName) {
         this.campaignName = campaignName;
         this.envName = envName;
-        this.campaignStatus = CampaignStatus.CREATED;
+        this.status = CampaignStatus.CREATED;
+        this.connection = connection;
     }
 
-    public void setCampaignId(long campaignId) {
-        this.campaignId = campaignId;
+    public ConnectionClient getConnection() {
+        return this.connection;
     }
 
-    public long getCampaignId() {
-        return this.campaignId;
+    public long getID() {
+        return this.id;
     }
 
-    public String getCampaignName() {
-        return this.campaignName;
+    public void setFailStatus() {
+        status = CampaignStatus.REPORTED_FAIL;
     }
 
-    public String getEnvName() {
-        return this.envName;
+    public boolean wasFailReported() {
+        return this.status == CampaignStatus.REPORTED_FAIL;
     }
 
-    public CampaignStatus getCampaignStatus() {
-        return campaignStatus;
+
+    public void beginTestCampaign() throws Exception {
+        String data = JsonApiHandler.createJSONForNewTestCampaign(campaignName, envName);
+        String response = connection.sendRequest(HttpMethod.POST, baseEndpoint + "begin", data);
+        this.id = JsonApiHandler.getIDFromResponse(response);
+        this.status = CampaignStatus.RUNNING;
     }
 
-    public void setCampaignStatus(CampaignStatus newCampaignStatus) {
-        log.info("New status to be set:" + newCampaignStatus);
-        campaignStatus = newCampaignStatus;
+    public void endTestCampaign(CampaignStatus endingStatus) throws Exception {
+        this.status = endingStatus;
+        String data = JsonApiHandler.createJSONForEndingOfTestCampaign(status.toString());
+        connection.sendRequest(HttpMethod.PUT, baseEndpoint + id + "/end", data);
     }
-
-    public void setCurrentTestCaseId(long currentTestCaseId) {
-        this.currentTestCaseId = currentTestCaseId;
-    }
-
-    public long getCurrentTestCaseId() {
-        return this.currentTestCaseId;
-    }
-
-    public TestCaseStatus getCurrentTestCaseStatus() {
-        return this.currentTestCaseCampaignStatus;
-    }
-
-    public void setCurrentTestCaseStatus(TestCaseStatus newCampaignStatus) {
-        log.info("New status to be set:" + newCampaignStatus);
-        currentTestCaseCampaignStatus = newCampaignStatus;
-    }
-
-    /*
-    private Boolean validateStatusChange(CampaignStatus newCampaignStatus) throws Exception {
-        //TODO popraw
-        switch (newCampaignStatus) {
-            case CREATED:
-                throw new Exception("Cannot assign status created to already existing test campaign");
-            case STARTED:
-                if (campaignStatus == CampaignStatus.CREATED)
-                    return true;
-                else
-                    throw new Exception("Cannot start test campaign from other status than CREATED");
-            case PASSED:
-            case FAILED:
-                if (campaignStatus == CampaignStatus.STARTED)
-                    return true;
-                else
-                    throw new Exception("Test campaign can be passed/failed only from status STARTED");
-            default:
-                throw new UnsupportedOperationException("CampaignStatus: " + newCampaignStatus + " not implemented");
-        }
-    }*/
 }

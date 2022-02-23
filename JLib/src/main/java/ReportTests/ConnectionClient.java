@@ -1,5 +1,7 @@
 package ReportTests;
 
+import Enums.HttpMethod;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -12,6 +14,7 @@ import java.util.logging.Logger;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class ConnectionClient {
+    private final Logger log;
     private String serverAddress;
     private final int timeoutInSeconds;
     private final HttpClient client;
@@ -19,6 +22,7 @@ public class ConnectionClient {
     final java.net.http.HttpClient.Version http_version = HttpClient.Version.HTTP_1_1;
 
     public ConnectionClient(String serverAddress, int timeout) {
+        log = Logger.getLogger(RemoteTestReporter.class.getName());
         initURIWithDashAtTheEnd(serverAddress);
         timeoutInSeconds = timeout;
         client = HttpClient.newHttpClient();
@@ -31,7 +35,7 @@ public class ConnectionClient {
             serverAddress = uri;
     }
 
-    private HttpRequest buildRequest(String httpMethod, String endpoint, String data) {
+    private HttpRequest buildRequest(HttpMethod httpMethod, String endpoint, String data) {
         String fullURI = serverAddress + endpoint;
         HttpRequest.Builder request = HttpRequest.newBuilder();
         request.uri(URI.create(fullURI));
@@ -46,17 +50,11 @@ public class ConnectionClient {
                     ofInputStream(() -> new ByteArrayInputStream(data.getBytes()));
         }
         switch (httpMethod) {
-            case "POST":
+            case POST:
                 request.POST(bodyPublisher);
                 break;
-            case "PUT":
+            case PUT:
                 request.PUT(bodyPublisher);
-                break;
-            case "DELETE":
-                request.DELETE();
-                break;
-            case "GET":
-                request.GET();
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -64,8 +62,10 @@ public class ConnectionClient {
         return request.build();
     }
 
-    public String sendGetRequest(String endpoint) throws Exception {
-        HttpRequest request = buildRequest("GET", endpoint, "");
+    public String sendRequest(HttpMethod httpMethod, String endpoint, String data) throws Exception {
+        if (data != null)
+            log.info("Data to be send to server: " + data);
+        HttpRequest request = buildRequest(httpMethod, endpoint, data);
         HttpResponse<String> response;
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -73,39 +73,10 @@ public class ConnectionClient {
             throw new Exception("Error occurred when sending request: " + e.getMessage());
         }
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
-            return response.body();
-        } else {
-            throw new Exception("Error from server. CampaignStatus code: "
-                    + response.statusCode() + " Error message: " + response.body());
-        }
-    }
-
-    public String sendPostRequest(String endpoint, String data) throws Exception {
-        HttpRequest request = buildRequest("POST", endpoint, data);
-        HttpResponse<String> response;
-        try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            throw new Exception("Error occurred when sending request: " + e.getMessage());
-        }
-        if (response.statusCode() >= 200 && response.statusCode() < 300) {
-            return response.body();
-        } else {
-            throw new Exception("Error from server. CampaignStatus code: "
-                    + response.statusCode() + " Error message: " + response.body());
-        }
-    }
-
-    public String sendPutRequest(String endpoint, String data) throws Exception {
-        HttpRequest request = buildRequest("PUT", endpoint, data);
-        HttpResponse<String> response;
-        try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            throw new Exception("Error occurred when sending request: " + e.getMessage());
-        }
-        if (response.statusCode() >= 200 && response.statusCode() < 300) {
-            return response.body();
+            String responseBody = response.body();
+            if (!responseBody.equals("null"))
+                log.info("Response from server: " + responseBody);
+            return responseBody;
         } else {
             throw new Exception("Error from server. CampaignStatus code: "
                     + response.statusCode() + " Error message: " + response.body());

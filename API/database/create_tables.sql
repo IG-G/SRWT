@@ -32,7 +32,7 @@ create table FailInfo(
     id INT(6) PRIMARY KEY AUTO_INCREMENT,
     reportTime DATETIME NOT NULL,
     message VARCHAR(120),
-    testCaseID INT(6),
+    testCaseID INT(6) NOT NULL,
     CONSTRAINT FK_testCaseID FOREIGN KEY (testCaseID)
     REFERENCES TestCase(id)
 );
@@ -40,8 +40,8 @@ create table LogInfo(
     id INT(6) PRIMARY KEY AUTO_INCREMENT,
     reportTime DATETIME NOT NULL,
     message VARCHAR(120),
-    level_status VARCHAR(30),
-    testCaseID INT(6),
+    level_status VARCHAR(30) NOT NULL,
+    testCaseID INT(6) NOT NULL,
     CONSTRAINT FK_log_testCaseID FOREIGN KEY (testCaseID)
     REFERENCES TestCase(id)
 );

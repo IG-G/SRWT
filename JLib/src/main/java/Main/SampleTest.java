@@ -1,16 +1,16 @@
 package Main;
 
-import ReportTests.ReportTests;
+import ReportTests.RemoteTestReporter;
 
 public class SampleTest {
     public static void main(String[] args) throws Exception {
-        ReportTests report = new ReportTests("conf/conf.json");
+        RemoteTestReporter report = new RemoteTestReporter("conf/conf.json");
         report.beginTestCampaign();
-        report.beginTestCase("Test 1");
-        report.reportFailure("To sie nie udalo", false);
-        report.endTestCase();
-        report.beginTestCase("test 2");
-        report.endTestCase();
+        long testCaseID = report.beginTestCase("Test 1");
+        report.reportFailure(testCaseID, "To sie nie udalo", false);
+        report.endTestCase(testCaseID);
+        testCaseID = report.beginTestCase("test 2");
+        report.endTestCase(testCaseID);
         report.endTestCampaign();
     }
 }

@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
-from . import models
+from src import models
 from src.schemas.test_campaign_schema import (
     TestCampaignCreate,
     TestCampaign,
@@ -15,7 +15,7 @@ from src.schemas.test_case_schema import (
 )
 from src.cruds import campaign as crud_campaign
 from src.cruds import test_case as crud_test_case
-from .database import SessionLocal, engine
+from src.database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -31,12 +31,11 @@ def get_db():
         db.close()
 
 
-@app.post("/campaigns/", response_model=TestCampaign)
-def create_test_campaign(campaign: TestCampaignCreate, db: Session = Depends(get_db)):
-    return crud_campaign.create_test_campaign(db=db, campaign=campaign)
+@app.post("/campaigns/begin", response_model=TestCampaign)
+def create_test_campaign(new_campaign: TestCampaignCreate, db: Session = Depends(get_db)):
+    return crud_campaign.create_test_campaign(db=db, campaign=new_campaign)
 
 
-# TODO remove this endpoint for security reasons
 @app.get("/campaigns/", response_model=List[TestCampaign])
 def get_test_campaigns(limit: int = 100, db: Session = Depends(get_db)):
     return crud_campaign.get_test_campaigns(db, limit=limit)
@@ -50,15 +49,15 @@ def get_test_campaign(campaign_id: int, db: Session = Depends(get_db)):
     return campaign
 
 
-@app.put("/campaigns/{campaign_id}")
+@app.put("/campaigns/{campaign_id}/end")
 def end_test_campaign(
     campaign_id: int, campaign_end: TestCampaignEnd, db: Session = Depends(get_db)
 ):
     crud_campaign.end_test_campaign(db, campaign_id=campaign_id, campaign=campaign_end)
 
 
-@app.post("/testcases/{campaign_id}")
-def create_test_case(
+@app.post("/testcases/{campaign_id}/begin")
+def begin_test_case(
     campaign_id: int, test_case: TestCaseCreate, db: Session = Depends(get_db)
 ):
     return crud_test_case.create_test_case(db, test_case=test_case, campaign_id=campaign_id)
