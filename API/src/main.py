@@ -1,4 +1,7 @@
+import logging
 from typing import List
+
+import fastapi.logger
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 from src import models

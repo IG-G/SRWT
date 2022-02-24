@@ -12,7 +12,7 @@ from src.const import const
 
 
 def get_test_campaign_by_id(db: Session, campaign_id: int):
-    log.info("Query for campaign id", campaign_id=campaign_id)
+    log.info(f"Query for campaign id, campaign_id={campaign_id}")
     return (
         db.query(models.TestCampaign)
         .filter(models.TestCampaign.id == campaign_id)
@@ -21,7 +21,7 @@ def get_test_campaign_by_id(db: Session, campaign_id: int):
 
 
 def get_test_campaigns(db: Session, limit: int = 100):
-    log.info("Query for all campaigns", limit=limit)
+    log.info(f"Query for all campaigns, limit={limit}")
     return db.query(models.TestCampaign).limit(limit).all()
 
 
@@ -44,7 +44,10 @@ def create_test_campaign(db: Session, campaign: TestCampaignCreate):
         envName=campaign.envName,
         status=CampaignStatus.RUNNING.name,
     )
-    log.info("Create new campaign", data=db_test_campaign)
+    log.info(
+        f"Create new campaign, name={db_test_campaign.campaignName}"
+        + f" env={db_test_campaign.envName} id={db_test_campaign.id}"
+    )
     db.add(db_test_campaign)
     db.commit()
     db.refresh(db_test_campaign)
@@ -56,7 +59,7 @@ def end_test_campaign(db: Session, campaign_id: int, campaign: TestCampaignEnd):
         raise HTTPException(
             status_code=422, detail=f"Campaign status {campaign.status} does not exist"
         )
-    log.info("End test campaign", id=campaign_id, data=campaign)
+    log.info(f"End test campaign id={campaign_id}, data={campaign}")
     result = (
         db.query(models.TestCampaign)
         .filter(models.TestCampaign.id == campaign_id)

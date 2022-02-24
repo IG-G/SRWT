@@ -12,6 +12,7 @@ from src.const import const
 
 
 def get_test_case_by_id(db: Session, campaign_id: int, test_case_id: int):
+    log.info(f"Query for test case id={test_case_id} in campaign={campaign_id}")
     return (
         db.query(models.TestCase)
         .filter(
@@ -23,6 +24,7 @@ def get_test_case_by_id(db: Session, campaign_id: int, test_case_id: int):
 
 
 def get_test_cases(db: Session, campaign_id: int, limit: int = 100):
+    log.info(f"Query for all test cases in campaign={campaign_id} with limit={limit}")
     return (
         db.query(models.TestCase)
         .filter(models.TestCase.testCampaignID == campaign_id)
@@ -48,6 +50,10 @@ def create_test_case(db: Session, test_case: TestCaseCreate, campaign_id: int):
         status=TestCaseStatus.IN_PROGRESS.name,
         testCampaignID=campaign_id,
     )
+    log.info(
+        f"Created test case, name={db_test_case.testCaseName}"
+        + f" id={db_test_case.id} campaign={db_test_case.testCampaignID}"
+    )
     db.add(db_test_case)
     db.commit()
     db.refresh(db_test_case)
@@ -61,7 +67,9 @@ def end_test_case(
         raise HTTPException(
             status_code=422, detail=f"Status {test_case.status} does not exist"
         )
-    log.info("Results for test case", test_case=test_case_id, status=test_case.status)
+    log.info(
+        f"Results for test case, test_case={test_case_id}, status={test_case.status}"
+    )
     result = (
         db.query(models.TestCase)
         .filter(
@@ -96,6 +104,9 @@ def fail_test_case(
         testCaseID=test_case_id,
         message=fail_info.message,
     )
+    log.info(
+        f"Created fail info, testcase={db_fail_info.testCaseID} id={db_fail_info.id} data={db_fail_info.message}"
+    )
     db.add(db_fail_info)
     result = (
         db.query(models.TestCase)
@@ -110,5 +121,6 @@ def fail_test_case(
             status_code=404,
             detail=f"Test case id: {test_case_id} in campaign {campaign_id} does not exist",
         )
+    log.info("Updated row with corresponding test case id")
     db.commit()
     db.refresh(db_fail_info)
