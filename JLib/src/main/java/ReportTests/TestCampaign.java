@@ -39,6 +39,8 @@ public class TestCampaign {
 
 
     public void beginTestCampaign() throws Exception {
+        if (status != CampaignStatus.CREATED)
+            throw new Exception("Cannot start campaign for second time");
         String data = JsonApiHandler.createJSONForNewTestCampaign(campaignName, envName);
         String response = connection.sendRequest(HttpMethod.POST, baseEndpoint + "begin", data);
         this.id = JsonApiHandler.getIDFromResponse(response);
@@ -46,6 +48,8 @@ public class TestCampaign {
     }
 
     public void endTestCampaign(CampaignStatus endingStatus) throws Exception {
+        if (status != CampaignStatus.RUNNING && status != CampaignStatus.REPORTED_FAIL)
+            throw new Exception("Cannot end ended campaign");
         this.status = endingStatus;
         String data = JsonApiHandler.createJSONForEndingOfTestCampaign(status.toString());
         connection.sendRequest(HttpMethod.PUT, baseEndpoint + id + "/end", data);

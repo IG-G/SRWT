@@ -37,7 +37,7 @@ def create_test_campaign(db: Session, campaign: TestCampaignCreate):
             detail=f"Campaign env exceeds max length ({const.MAX_ENV_NAME})",
         )
 
-    new_id = random.randint(0, 1000)
+    new_id = random.randint(0, 100000)
     db_test_campaign = models.TestCampaign(
         id=new_id,
         campaignName=campaign.campaignName,

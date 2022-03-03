@@ -3,7 +3,6 @@ package ReportTests;
 import Enums.CampaignStatus;
 import JSON.JsonConfigHandler;
 
-import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
 public class RemoteTestReporter {
@@ -14,7 +13,6 @@ public class RemoteTestReporter {
 
     public RemoteTestReporter(String confFile) throws Exception {
         log = Logger.getLogger(RemoteTestReporter.class.getName());
-        log.addHandler(new FileHandler("lib.log"));
 
         JsonConfigHandler handler = new JsonConfigHandler(confFile);
         String baseURI = handler.getParamFromJSONConfig("baseURI");
@@ -26,6 +24,7 @@ public class RemoteTestReporter {
         String envName = handler.getParamFromJSONConfig("testEnvironment");
         log.info("Repository params - campaign name: " + campaignName + ", env name: " + envName);
         campaign = new TestCampaign(connection, campaignName, envName);
+        testCase = null;
     }
 
     public void beginTestCampaign() throws Exception {
@@ -34,6 +33,8 @@ public class RemoteTestReporter {
     }
 
     public void beginTestCase(String testCaseName) throws Exception {
+        if (testCase != null)
+            throw new Exception("Cannot start second test case");
         testCase = new TestCase(campaign.getConnection(), campaign.getID());
         testCase.beginTestCase(testCaseName);
         log.info("Successfully began test case " + testCaseName + " with id " + testCase.getTestCaseID());
@@ -48,6 +49,8 @@ public class RemoteTestReporter {
     }
 
     public void endTestCase() throws Exception {
+        if (testCase == null)
+            throw new Exception("Cannot end ended test case");
         testCase.endTestCase();
         log.info("Successfully ended test case " + testCase.getTestCaseID());
         testCase = null;

@@ -4,6 +4,7 @@ import Enums.HttpMethod;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -63,14 +64,17 @@ public class ConnectionClient {
     }
 
     public String sendRequest(HttpMethod httpMethod, String endpoint, String data) throws Exception {
-        if (data != null)
-            log.info("Data to be send to server: " + data);
+        log.info("Http Method: " + httpMethod + ", Endpoint: " + endpoint + ", Data to be send to server: " + data);
         HttpRequest request = buildRequest(httpMethod, endpoint, data);
         HttpResponse<String> response;
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
-            throw new Exception("Error occurred when sending request: " + e.getMessage());
+            String err = e.getMessage();
+            if (err == null)
+                throw new ConnectException("Server unreachable");
+            else
+                throw new Exception("Error occurred when sending request: " + err);
         }
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             String responseBody = response.body();

@@ -43,7 +43,7 @@ def create_test_case(db: Session, test_case: TestCaseCreate, campaign_id: int):
             status_code=422,
             detail=f"Test case name exceeds max length ({const.MAX_TEST_CASE_NAME})",
         )
-    new_id = random.randint(0, 1000)
+    new_id = random.randint(0, 100000)
     db_test_case = models.TestCase(
         id=new_id,
         testCaseName=test_case.testCaseName,

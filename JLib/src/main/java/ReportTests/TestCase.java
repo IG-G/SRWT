@@ -22,18 +22,20 @@ public class TestCase {
         return testCaseID;
     }
 
-    public long beginTestCase(String testCaseName) throws Exception {
+    public void beginTestCase(String testCaseName) throws Exception {
+        if (status != TestCaseStatus.NOT_STARTED)
+            throw new Exception("Cannot start started test case");
         String data = JsonApiHandler.createJSONForNewTestCase(testCaseName);
         String response = connection.sendRequest(HttpMethod.POST, baseEndpoint + campaignID + "/begin", data);
         testCaseID = JsonApiHandler.getIDFromResponse(response);
         status = TestCaseStatus.IN_PROGRESS;
-        return testCaseID;
     }
 
     public void endTestCase() throws Exception {
+        if (status == TestCaseStatus.NOT_STARTED)
+            throw new Exception("Cannot end test case that wasn't started");
         if (status != TestCaseStatus.FAILED)
             status = TestCaseStatus.PASSED;
-
         String data = JsonApiHandler.createJSONForEndingOfTestCase(status.toString());
         connection.sendRequest(HttpMethod.PUT, baseEndpoint + campaignID + "/" + testCaseID + "/end", data);
     }
