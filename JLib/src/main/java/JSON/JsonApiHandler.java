@@ -41,4 +41,12 @@ public class JsonApiHandler {
         JSONObject json = (JSONObject) parser.parse(response);
         return (long) json.get("id");
     }
+
+    public static JSONObject createJSONObjectForSendingLogs(String message, String level, String datetime) {
+        JSONObject json = new JSONObject();
+        json.put("datetime", datetime);
+        json.put("level", level);
+        json.put("message", message);
+        return json;
+    }
 }

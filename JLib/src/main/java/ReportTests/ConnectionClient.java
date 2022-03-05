@@ -64,7 +64,7 @@ public class ConnectionClient {
     }
 
     public String sendRequest(HttpMethod httpMethod, String endpoint, String data) throws Exception {
-        log.info("Http Method: " + httpMethod + ", Endpoint: " + endpoint + ", Data to be send to server: " + data);
+        log.fine("Http Method: " + httpMethod + ", Endpoint: " + endpoint + ", Data to be send to server: " + data);
         HttpRequest request = buildRequest(httpMethod, endpoint, data);
         HttpResponse<String> response;
         try {
@@ -79,7 +79,7 @@ public class ConnectionClient {
         if (response.statusCode() >= 200 && response.statusCode() < 300) {
             String responseBody = response.body();
             if (!responseBody.equals("null"))
-                log.info("Response from server: " + responseBody);
+                log.fine("Response from server: " + responseBody);
             return responseBody;
         } else {
             throw new Exception("Error from server. CampaignStatus code: "
