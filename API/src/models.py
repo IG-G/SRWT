@@ -47,8 +47,8 @@ class FailInfo(Base):
 class LogInfo(Base):
     __tablename__ = "LogInfo"
 
-    id = Column(Integer, primary_key=True, autoincrement=True, index=False)
-    reportTime = Column(DateTime, default=datetime.datetime.now())
+    id = Column(Integer, primary_key=True, index=False)
+    reportTime = Column(DateTime)
     message = Column(String(120))
     level_status = Column(String(30))
     testCaseID = Column(Integer, ForeignKey("TestCase.id"))

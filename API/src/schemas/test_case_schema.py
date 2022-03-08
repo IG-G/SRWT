@@ -29,5 +29,15 @@ class TestCase(BaseModel):
         orm_mode = True
 
 
+class TestCaseCreateResponse(BaseModel):
+    id: int
+    testCampaignID: int
+    begTime: datetime.datetime
+    status: str
+
+    class Config:
+        orm_mode = True
+
+
 class TestCaseFail(BaseModel):
     message: str

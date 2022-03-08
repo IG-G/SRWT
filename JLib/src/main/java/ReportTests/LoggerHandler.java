@@ -11,10 +11,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class LoggerHandler {
-    private final String baseEndpoint = "";
+    private final String baseEndpoint = "logs/";
     private final ConnectionClient connection;
 
     private final long testCaseID;
+    private final long campaignID;
     private final ArrayList<LogElement> logs;
 
     static class LogElement {
@@ -43,13 +44,13 @@ class LoggerHandler {
             jsonLogs.add(el.serializeToJSONObject());
         }
         JSONObject json = new JSONObject();
-        json.put("testCaseID", testCaseID);
         json.put("logs", jsonLogs);
         return json.toJSONString();
     }
 
-    public LoggerHandler(ConnectionClient client, long testCaseID) {
+    public LoggerHandler(ConnectionClient client, long campaignID, long testCaseID) {
         this.connection = client;
+        this.campaignID = campaignID;
         this.testCaseID = testCaseID;
         logs = new ArrayList<>();
     }
@@ -66,7 +67,7 @@ class LoggerHandler {
 
     public void sendLogsToServer() throws Exception {
         String data = createJSONWithLogsForServer();
-        connection.sendRequest(HttpMethod.POST, baseEndpoint, data);
+        connection.sendRequest(HttpMethod.POST, baseEndpoint + campaignID + "/" + testCaseID + "/create", data);
     }
 
 }

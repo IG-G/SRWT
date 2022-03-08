@@ -59,7 +59,7 @@ public class RemoteTestReporter {
         testCase = new TestCase(campaign.getConnection(), campaign.getID());
         testCase.beginTestCase(testCaseName);
         log.fine("Successfully began test case " + testCaseName + " with id " + testCase.getTestCaseID());
-        remoteLoggerHandler = new LoggerHandler(campaign.getConnection(), testCase.getTestCaseID());
+        remoteLoggerHandler = new LoggerHandler(campaign.getConnection(), campaign.getID(), testCase.getTestCaseID());
     }
 
     public void reportFailure(String message, Boolean shouldEndTestCase) throws Exception {
@@ -90,7 +90,7 @@ public class RemoteTestReporter {
         log.fine("Successfully ended test campaign");
     }
 
-    public void log(String message, Level level) throws Exception {
+    public void log(Level level, String message) throws Exception {
         if(testCase == null) {
             throw new Exception("Cannot log without test case");
         }
