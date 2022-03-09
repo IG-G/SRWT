@@ -30,5 +30,24 @@ def add_logs_to_database(db: Session, test_case_id: int, logs: Logs):
         log.info(f"Added new log with message {log_element.message}")
 
 
-def get_logs_for_test_cae_id():
-    pass
+def get_logs(db: Session, test_case_id: int):
+    result = (
+        db.query(models.LogInfo).filter(models.LogInfo.testCaseID == test_case_id).all()
+    )
+    log.info(f"Collected results for logs given test_case_id = {test_case_id}")
+    return result
+
+
+def get_logs_on_given_level(db: Session, test_case_id: int, level: str):
+    result = (
+        db.query(models.LogInfo)
+        .filter(
+            models.LogInfo.testCaseID == test_case_id,
+            models.LogInfo.level_status == level,
+        )
+        .all()
+    )
+    log.info(
+        f"Collected results for logs given test_case_id = {test_case_id} and given level {level}"
+    )
+    return result

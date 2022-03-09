@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.net.ConnectException;
+import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -17,7 +18,7 @@ public class TestsForRemoteTestReporterClass {
     private final String testCaseName = "dummy test case name";
 
     /**
-     * Before all - run server for this tests to pass
+     * Before all - run server manually for this tests to pass
      */
 
     @BeforeEach
@@ -121,5 +122,35 @@ public class TestsForRemoteTestReporterClass {
         reporter.endTestCase();
         reporter.endTestCampaign();
         assertThrows(Exception.class, () -> reporter.reportFailure("Failed", true));
+    }
+
+    @Test
+    void testShouldPassWhenLogsAreBeginCollected() throws Exception {
+        reporter.beginTestCampaign();
+        reporter.beginTestCase(testCaseName);
+        reporter.log(Level.INFO, "Dummy message");
+        reporter.log(Level.INFO, "Dummy message 2");
+        reporter.endTestCase();
+        reporter.endTestCampaign();
+    }
+
+    @Test
+    void testShouldFailWhenLogsAreLoggedWithoutTestCase() throws Exception {
+        reporter.beginTestCampaign();
+        assertThrows(Exception.class, () -> reporter.log(Level.FINE, "Should Fail"));
+        reporter.beginTestCase(testCaseName);
+        reporter.endTestCase();
+        assertThrows(Exception.class, () -> reporter.log(Level.FINE, "Should Fail"));
+        reporter.endTestCampaign();
+    }
+
+    @Test
+    void testShouldFailWhenLogsAreLoggedWithoutCampaign() throws Exception {
+        assertThrows(Exception.class, () -> reporter.log(Level.FINE, "Should Fail"));
+        reporter.beginTestCampaign();
+        reporter.beginTestCase(testCaseName);
+        reporter.endTestCase();
+        reporter.endTestCampaign();
+        assertThrows(Exception.class, () -> reporter.log(Level.FINE, "Should Fail"));
     }
 }

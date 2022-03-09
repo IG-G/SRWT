@@ -1,6 +1,9 @@
 {
-  "baseURI": "http://127.0.0.1:8000/",
-  "timeout": "10",
-  "campaignName": "Test strony www",
-  "testEnvironment": "CI pipeline #1"
+    "baseURI":"http://127.0.0.1:8000/",
+    "timeout":"10",
+    "enableDebugLogs": "true",
+    "publishLogsLocally": "true",
+
+    "campaignName":"Test strony www",
+    "testEnvironment":"CI pipeline #1"
 }

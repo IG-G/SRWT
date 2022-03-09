@@ -26,6 +26,16 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 
+def assert_campaign_and_test_case_exist(
+    db: Session, campaign_id: int, test_case_id: int
+):
+    test_case = crud_test_case.get_test_case_by_id(
+        db, campaign_id=campaign_id, test_case_id=test_case_id
+    )
+    if test_case is None:
+        raise HTTPException(status_code=404, detail="Test case or campaign not found")
+
+
 # Dependency
 def get_db():
     db = SessionLocal()
@@ -94,6 +104,7 @@ def end_test_case(
     test_case: TestCaseEnd,
     db: Session = Depends(get_db),
 ):
+    assert_campaign_and_test_case_exist(db, campaign_id, test_case_id)
     crud_test_case.end_test_case(
         db, campaign_id=campaign_id, test_case_id=test_case_id, test_case=test_case
     )
@@ -106,6 +117,7 @@ def fail_test_case(
     fail_info: TestCaseFail,
     db: Session = Depends(get_db),
 ):
+    assert_campaign_and_test_case_exist(db, campaign_id, test_case_id)
     crud_test_case.fail_test_case(
         db, campaign_id=campaign_id, test_case_id=test_case_id, fail_info=fail_info
     )
@@ -115,9 +127,20 @@ def fail_test_case(
 def add_logs_to_test_case(
     campaign_id: int, test_case_id: int, logs: Logs, db: Session = Depends(get_db)
 ):
-    test_case = crud_test_case.get_test_case_by_id(
-        db, campaign_id=campaign_id, test_case_id=test_case_id
-    )
-    if test_case is None:
-        raise HTTPException(status_code=404, detail="Test case or campaign not found")
+    assert_campaign_and_test_case_exist(db, campaign_id, test_case_id)
     crud_log.add_logs_to_database(db, test_case_id, logs)
+
+
+@app.get("/logs/{campaign_id}/{test_case_id}", response_model=Logs)
+def get_logs_for_given_test_case_id(
+    campaign_id: int,
+    test_case_id: int,
+    level: str = None,
+    db: Session = Depends(get_db),
+):
+    assert_campaign_and_test_case_exist(db, campaign_id, test_case_id)
+    if level is None:
+        result = crud_log.get_logs(db, test_case_id)
+    else:
+        result = crud_log.get_logs_on_given_level(db, test_case_id, level)
+    return result
