@@ -34,7 +34,7 @@ public class TestsForRemoteTestReporterClass {
     @Test
     void testShouldFailWhenServerIsUnreachable() throws Exception {
         reporter = new RemoteTestReporter("src/test/java/Integration/conf_with_errors.json");
-        assertThrows(ConnectException.class, () -> reporter.beginTestCampaign());
+        assertThrows(Exception.class, () -> reporter.beginTestCampaign());
     }
 
     @Test
