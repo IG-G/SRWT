@@ -33,3 +33,11 @@ create table LogInfo(
     CONSTRAINT FK_log_testCaseID FOREIGN KEY (testCaseID)
     REFERENCES TestCase(id)
 );
+create table ScreenshotInfo(
+    id SERIAL PRIMARY KEY,
+    reportTime TIMESTAMP,
+    path VARCHAR(30) NOT NULL,
+    testCaseID INT NOT NULL,
+    CONSTRAINT FK_screenshot_testCaseID FOREIGN KEY (testCaseID)
+    REFERENCES TestCase(id)
+)

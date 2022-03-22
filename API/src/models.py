@@ -31,6 +31,7 @@ class TestCase(Base):
     testCampaign = relationship("TestCampaign", back_populates="testCases")
     failsInfo = relationship("FailInfo", back_populates="testCase")
     logsInfo = relationship("LogInfo", back_populates="testCase")
+    screenshotInfo = relationship("ScreenshotInfo", back_populates="testCase")
 
 
 class FailInfo(Base):
@@ -54,3 +55,14 @@ class LogInfo(Base):
     testCaseID = Column(Integer, ForeignKey("TestCase.id"))
 
     testCase = relationship("TestCase", back_populates="logsInfo")
+
+
+class ScreenshotInfo(Base):
+    __tablename__ = "ScreenshotInfo"
+
+    id = Column(Integer, primary_key=True)
+    reportTime = Column(DateTime)
+    path = Column(String(30))
+    testCaseID = Column(Integer, ForeignKey("TestCase.id"))
+
+    testCase = relationship("TestCase", back_populates="screenshotInfo")

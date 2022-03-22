@@ -1,13 +1,10 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func
-from fastapi import HTTPException
+
 from datetime import datetime
 
 from src import models
 from src.logger import log
-from src.enums import CampaignStatus, check_if_campaign_status_is_valid
 from src.schemas.logs_schema import Logs
-from src.const import const
 
 
 def add_logs_to_database(db: Session, test_case_id: int, logs: Logs):

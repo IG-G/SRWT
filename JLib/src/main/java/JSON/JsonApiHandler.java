@@ -49,4 +49,11 @@ public class JsonApiHandler {
         json.put("message", message);
         return json;
     }
+
+    public static String createJSONObjectForSendingScreenshots(String path, String datetime) {
+        JSONObject json = new JSONObject();
+        json.put("path", path);
+        json.put("datetime", datetime);
+        return json.toJSONString();
+    }
 }

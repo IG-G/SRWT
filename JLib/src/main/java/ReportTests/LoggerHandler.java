@@ -40,7 +40,7 @@ class LoggerHandler {
 
     private String createJSONWithLogsForServer() {
         JSONArray jsonLogs = new JSONArray();
-        for (LogElement el: logs) {
+        for (LogElement el : logs) {
             jsonLogs.add(el.serializeToJSONObject());
         }
         JSONObject json = new JSONObject();
@@ -60,7 +60,7 @@ class LoggerHandler {
     }
 
     public void publishLogsLocally(Logger log) {
-        for (LogElement el: logs) {
+        for (LogElement el : logs) {
             el.publishLog(log);
         }
     }

@@ -16,9 +16,11 @@ from src.schemas.test_case_schema import (
     TestCaseCreateResponse,
 )
 from src.schemas.logs_schema import Logs
+from src.schemas.screenshot_schema import ScreenshotInfo, ScreenshotID, FullScreenshotInfo
 from src.cruds import campaign as crud_campaign
 from src.cruds import test_case as crud_test_case
 from src.cruds import logs as crud_log
+from src.cruds import screenshots
 from src.database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
@@ -144,3 +146,24 @@ def get_logs_for_given_test_case_id(
     else:
         result = crud_log.get_logs_on_given_level(db, test_case_id, level)
     return result
+
+
+@app.post("/screenshots/{campaign_id}/{test_case_id}/add", response_model=ScreenshotID)
+def prepare_screenshot_for_given_test_case(
+    campaign_id: int,
+    test_case_id: int,
+    screenshot_info: ScreenshotInfo,
+    db: Session = Depends(get_db),
+):
+    assert_campaign_and_test_case_exist(db, campaign_id, test_case_id)
+    screenshots.add_path_to_screenshot(db, test_case_id, screenshot_info)
+
+
+@app.put("/screenshots/{screenshot_id}/")
+def save_screenshot(screenshot_id: int, db: Session = Depends(get_db)):
+    screenshots.save_screenshot()
+
+
+@app.get("/screenshots/")
+def get_all_screenshots(limit: int = 100, db: Session = Depends(get_db)):
+    screenshots.get_all_screenshots(db, limit)

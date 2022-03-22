@@ -4,8 +4,8 @@ import Enums.CampaignStatus;
 import JSON.JsonConfigHandler;
 
 import java.util.logging.ConsoleHandler;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RemoteTestReporter {
     private final Logger log;
@@ -14,6 +14,7 @@ public class RemoteTestReporter {
     private TestCase testCase;
     private LoggerHandler remoteLoggerHandler = null;
     private final boolean publishLogsLocally;
+    private ScreenshotHandler screenshotHandler = null;
 
 
     private Logger setupLogger(boolean enableDebugLogs) {
@@ -22,8 +23,7 @@ public class RemoteTestReporter {
         if (enableDebugLogs) {
             logHandler.setLevel(Level.FINE);
             log.setLevel(Level.FINE);
-        }
-        else
+        } else
             logHandler.setLevel(Level.INFO);
         log.addHandler(logHandler);
         return log;
@@ -51,6 +51,7 @@ public class RemoteTestReporter {
     public void beginTestCampaign() throws Exception {
         campaign.beginTestCampaign();
         log.fine("Successfully began test campaign");
+        screenshotHandler = new ScreenshotHandler(campaign.getConnection(), campaign.getID());
     }
 
     public void beginTestCase(String testCaseName) throws Exception {
@@ -75,10 +76,12 @@ public class RemoteTestReporter {
             throw new Exception("Cannot end ended test case");
         testCase.endTestCase();
         log.fine("Successfully ended test case " + testCase.getTestCaseID());
+        screenshotHandler.sendScreenshots(testCase.getTestCaseID());
+        log.fine("Successfully sent screenshots to server");
         testCase = null;
         remoteLoggerHandler.sendLogsToServer();
         log.fine("Successfully sent logs to server");
-        if(publishLogsLocally)
+        if (publishLogsLocally)
             remoteLoggerHandler.publishLogsLocally(log);
     }
 
@@ -91,12 +94,17 @@ public class RemoteTestReporter {
     }
 
     public void log(Level level, String message) throws Exception {
-        if(testCase == null) {
+        if (testCase == null) {
             throw new Exception("Cannot log without test case");
         }
-        if(remoteLoggerHandler == null) {
+        if (remoteLoggerHandler == null) {
             throw new Exception("New logger has not been created yet");
         }
         remoteLoggerHandler.addLogElement(message, level);
     }
+
+    public void takeScreenshot() throws Exception {
+        screenshotHandler.takeScreenshot(testCase.getTestCaseID());
+    }
+
 }
