@@ -1,5 +1,3 @@
-import random
-
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from fastapi import HTTPException
@@ -36,10 +34,7 @@ def create_test_campaign(db: Session, campaign: TestCampaignCreate):
             status_code=422,
             detail=f"Campaign env exceeds max length ({const.MAX_ENV_NAME})",
         )
-
-    new_id = random.randint(0, 100000)
     db_test_campaign = models.TestCampaign(
-        id=new_id,
         campaignName=campaign.campaignName,
         envName=campaign.envName,
         status=CampaignStatus.RUNNING.name,

@@ -1,0 +1,13 @@
+version: '3'
+services:
+  postgres-server:
+    image: my_postgres:1.0
+    environment:
+     - POSTGRES_PASSWORD=pass
+    ports:
+      - "5432:5432"
+  api-server:
+    image: api-server:1.5
+    ports:
+      - "8000:8000"
+    restart: always

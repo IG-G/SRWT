@@ -1,4 +1,3 @@
-import random
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from sqlalchemy.sql import func
@@ -43,9 +42,7 @@ def create_test_case(db: Session, test_case: TestCaseCreate, campaign_id: int):
             status_code=422,
             detail=f"Test case name exceeds max length ({const.MAX_TEST_CASE_NAME})",
         )
-    new_id = random.randint(0, 100000)
     db_test_case = models.TestCase(
-        id=new_id,
         testCaseName=test_case.testCaseName,
         status=TestCaseStatus.IN_PROGRESS.name,
         testCampaignID=campaign_id,
@@ -108,6 +105,8 @@ def fail_test_case(
         f"Created fail info, testcase={db_fail_info.testCaseID} id={db_fail_info.id} data={db_fail_info.message}"
     )
     db.add(db_fail_info)
+    db.commit()
+    db.refresh(db_fail_info)
     result = (
         db.query(models.TestCase)
         .filter(
@@ -122,5 +121,3 @@ def fail_test_case(
             detail=f"Test case id: {test_case_id} in campaign {campaign_id} does not exist",
         )
     log.info("Updated row with corresponding test case id")
-    db.commit()
-    db.refresh(db_fail_info)

@@ -1,5 +1,3 @@
-import random
-
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from fastapi import HTTPException
@@ -14,9 +12,7 @@ from src.const import const
 
 def add_logs_to_database(db: Session, test_case_id: int, logs: Logs):
     for log_element in logs.logs:
-        new_id = random.randint(0, 100000)
         db_logs = models.LogInfo(
-            id=new_id,
             reportTime=datetime.strptime(
                 log_element.datetime[:-3], "%Y-%m-%dT%H:%M:%S.%f"
             ),
