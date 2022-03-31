@@ -37,9 +37,8 @@ public class RemoteTestReporter {
         publishLogsLocally = Boolean.parseBoolean(handler.getParamFromJSONConfig("publishLogsLocally"));
 
         String baseURI = handler.getParamFromJSONConfig("baseURI");
-        String timeout = handler.getParamFromJSONConfig("timeout");
-        log.fine("Connection params - baseURI: " + baseURI + ", timeout: " + timeout);
-        ConnectionClient connection = new ConnectionClient(baseURI, Integer.parseInt(timeout));
+        log.fine("Connection params - baseURI: " + baseURI);
+        ConnectionClient connection = new ConnectionClient(baseURI);
 
         String campaignName = handler.getParamFromJSONConfig("campaignName");
         String envName = handler.getParamFromJSONConfig("testEnvironment");
@@ -90,6 +89,7 @@ public class RemoteTestReporter {
             campaign.endTestCampaign(CampaignStatus.FINISHED_WITH_FAILS);
         else
             campaign.endTestCampaign(CampaignStatus.FINISHED);
+        screenshotHandler = null;
         log.fine("Successfully ended test campaign");
     }
 
@@ -104,6 +104,11 @@ public class RemoteTestReporter {
     }
 
     public void takeScreenshot() throws Exception {
+        if (testCase == null)
+            throw new Exception("Cannot take screenshot without testcase");
+        if (screenshotHandler == null) {
+            throw new Exception("Cannot take screenshot without test campaign");
+        }
         screenshotHandler.takeScreenshot(testCase.getTestCaseID());
     }
 

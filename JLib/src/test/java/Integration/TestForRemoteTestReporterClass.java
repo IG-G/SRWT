@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class TestsForRemoteTestReporterClass {
+public class TestForRemoteTestReporterClass {
 
     private RemoteTestReporter reporter;
     private final String testCaseName = "dummy test case name";
@@ -152,4 +152,36 @@ public class TestsForRemoteTestReporterClass {
         reporter.endTestCampaign();
         assertThrows(Exception.class, () -> reporter.log(Level.FINE, "Should Fail"));
     }
+
+    @Test
+    void testShouldPassWhenScreenshotIsTaken() throws Exception {
+        reporter.beginTestCampaign();
+        reporter.beginTestCase(testCaseName);
+        reporter.takeScreenshot();
+        reporter.endTestCase();
+        reporter.endTestCampaign();
+    }
+
+    @Test
+    void testShouldFailWhenScreenshotIsTakenAfterEndOfTestCaseOrTestCampaign() throws Exception {
+        reporter.beginTestCampaign();
+        reporter.beginTestCase(testCaseName);
+        reporter.takeScreenshot();
+        reporter.endTestCase();
+        assertThrows(Exception.class, () -> reporter.takeScreenshot());
+        reporter.endTestCampaign();
+        assertThrows(Exception.class, () -> reporter.takeScreenshot());
+    }
+
+    @Test
+    void testShouldFailWhenScreenshotTakenBeforeBeginningOfTestCaseOrTestCampaign() throws Exception {
+        assertThrows(Exception.class, () -> reporter.takeScreenshot());
+        reporter.beginTestCampaign();
+        assertThrows(Exception.class, () -> reporter.takeScreenshot());
+        reporter.beginTestCase(testCaseName);
+        reporter.takeScreenshot();
+        reporter.endTestCase();
+        reporter.endTestCampaign();
+    }
+
 }

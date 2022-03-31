@@ -164,7 +164,7 @@ def prepare_screenshot_for_given_test_case(
     return screenshots.add_path_to_screenshot(db, test_case_id, screenshot_info)
 
 
-@app.post("/screenshots/{screenshot_id}/")
+@app.put("/screenshots/{screenshot_id}/")
 def save_screenshot(
     screenshot_id: int, file: bytes = File(...), db: Session = Depends(get_db)
 ):

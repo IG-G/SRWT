@@ -1,5 +1,4 @@
 class Settings:
-
     def __init__(self):
         self.db_user = "fastapi"
         self.db_password = "fastapi_password"

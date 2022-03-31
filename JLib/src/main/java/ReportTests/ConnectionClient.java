@@ -22,7 +22,7 @@ public class ConnectionClient {
     private final CloseableHttpClient client;
 
 
-    public ConnectionClient(String serverAddress, int timeout) {
+    public ConnectionClient(String serverAddress) {
         log = Logger.getLogger(RemoteTestReporter.class.getName());
         initURIWithDashAtTheEnd(serverAddress);
         client = HttpClients.createDefault();
@@ -99,7 +99,7 @@ public class ConnectionClient {
 
     public void sendImage(String endpoint, String path) throws IOException {
         log.fine("Send image to server. Endpoint: " + endpoint);
-        HttpPost uploadFileRequest = new HttpPost(serverAddress + endpoint);
+        HttpPut uploadFileRequest = new HttpPut(serverAddress + endpoint);
         HttpEntity entityWithImage = createEntityWithImage(path);
         uploadFileRequest.setEntity(entityWithImage);
         CloseableHttpResponse response = client.execute(uploadFileRequest);
