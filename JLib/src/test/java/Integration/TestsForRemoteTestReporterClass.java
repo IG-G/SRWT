@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
-import java.net.ConnectException;
 import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

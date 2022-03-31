@@ -13,9 +13,10 @@ public class SampleTest {
         report.log(Level.SEVERE, "Brak danych");
         report.log(Level.SEVERE, "Brak danych2");
         report.reportFailure("To sie nie udalo", false);
+        report.takeScreenshot();
         report.endTestCase();
-        report.beginTestCase("test 2");
-        report.endTestCase();
+        //report.beginTestCase("test 2");
+        //report.endTestCase();
         report.endTestCampaign();
     }
 }

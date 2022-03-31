@@ -1,6 +1,7 @@
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, UploadFile
+from fastapi.params import File
 from sqlalchemy.orm import Session
 from src import models
 from src.schemas.test_campaign_schema import (
@@ -16,7 +17,11 @@ from src.schemas.test_case_schema import (
     TestCaseCreateResponse,
 )
 from src.schemas.logs_schema import Logs
-from src.schemas.screenshot_schema import ScreenshotInfo, ScreenshotID, FullScreenshotInfo
+from src.schemas.screenshot_schema import (
+    ScreenshotInfo,
+    ScreenshotID,
+    FullScreenshotInfo,
+)
 from src.cruds import campaign as crud_campaign
 from src.cruds import test_case as crud_test_case
 from src.cruds import logs as crud_log
@@ -156,14 +161,16 @@ def prepare_screenshot_for_given_test_case(
     db: Session = Depends(get_db),
 ):
     assert_campaign_and_test_case_exist(db, campaign_id, test_case_id)
-    screenshots.add_path_to_screenshot(db, test_case_id, screenshot_info)
+    return screenshots.add_path_to_screenshot(db, test_case_id, screenshot_info)
 
 
-@app.put("/screenshots/{screenshot_id}/")
-def save_screenshot(screenshot_id: int, db: Session = Depends(get_db)):
-    screenshots.save_screenshot()
+@app.post("/screenshots/{screenshot_id}/")
+def save_screenshot(
+    screenshot_id: int, file: bytes = File(...), db: Session = Depends(get_db)
+):
+    screenshots.save_screenshot(db, screenshot_id, file)
 
 
 @app.get("/screenshots/")
 def get_all_screenshots(limit: int = 100, db: Session = Depends(get_db)):
-    screenshots.get_all_screenshots(db, limit)
+    return screenshots.get_all_screenshots(db, limit)

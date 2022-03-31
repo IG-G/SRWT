@@ -20,7 +20,7 @@ public class ScreenshotHandler {
     private final ArrayList<ScreenshotElement> screenshotElements;
     private final String baseEndpoint = "screenshots/";
 
-    static class ScreenshotElement {
+    class ScreenshotElement {
         private final LocalDateTime dateTime;
         private final String path;
         private final long testCaseID;
@@ -39,14 +39,23 @@ public class ScreenshotHandler {
             return testCaseID;
         }
 
-        public void deleteLocalFile() {
-            //TODO remove file stored under path var
+        public void deleteLocalFile() throws IOException {
+            if (!new File(path).delete())
+                throw new IOException("Unable to remove file");
+        }
+
+        public void sendScreenshot() throws Exception {
+            String data = createJSONFromScreenshotElement();
+            String response = connection.sendRequest(HttpMethod.POST,
+                    baseEndpoint + campaignID + "/" + getTestCaseID() + "/add", data);
+            long screenshotID = JsonApiHandler.getIDFromResponse(response);
+            connection.sendImage(baseEndpoint + screenshotID + "/", path);
         }
     }
 
     private String generateFileName(long testCaseID) {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-        return "s_" + timeStamp + "_" + campaignID + "_" + testCaseID;
+        return "s_" + timeStamp + "_" + campaignID + "_" + testCaseID + ".bmp";
     }
 
     public ScreenshotHandler(ConnectionClient connection, long campaignID) {
@@ -61,7 +70,7 @@ public class ScreenshotHandler {
             BufferedImage capture = new Robot().createScreenCapture(screenRect);
             String fileName = generateFileName(testCaseID);
             ImageIO.write(capture, "bmp", new File(fileName));
-            screenshotElements.add(new ScreenshotElement(fileName + ".bmp", testCaseID));
+            screenshotElements.add(new ScreenshotElement(fileName, testCaseID));
         } catch (AWTException | IOException e) {
             throw new Exception("Excpetion occured when taking screenshot: " + e.getMessage());
         }
@@ -71,11 +80,12 @@ public class ScreenshotHandler {
         ArrayList<ScreenshotElement> toRemove = new ArrayList<>();
         for (ScreenshotElement el : screenshotElements) {
             if (testCaseID == el.getTestCaseID()) {
-                String data = el.createJSONFromScreenshotElement();
-                connection.sendRequest(HttpMethod.POST, baseEndpoint + campaignID + "/" + el.getTestCaseID() + "/add", data);
-                el.deleteLocalFile();
+                el.sendScreenshot();
                 toRemove.add(el);
             }
+        }
+        for (ScreenshotElement e : toRemove) {
+            e.deleteLocalFile();
         }
         screenshotElements.removeAll(toRemove);
     }

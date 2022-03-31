@@ -97,10 +97,7 @@ def fail_test_case(
             status_code=422,
             detail=f"Message exceeds max length ({const.MAX_MESSAGE_LENGTH})",
         )
-    db_fail_info = models.FailInfo(
-        testCaseID=test_case_id,
-        message=fail_info.message,
-    )
+    db_fail_info = models.FailInfo(testCaseID=test_case_id, message=fail_info.message)
     log.info(
         f"Created fail info, testcase={db_fail_info.testCaseID} id={db_fail_info.id} data={db_fail_info.message}"
     )

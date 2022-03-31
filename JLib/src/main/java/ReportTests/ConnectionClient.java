@@ -1,32 +1,31 @@
 package ReportTests;
 
 import Enums.HttpMethod;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
+import java.io.*;
 import java.util.logging.Logger;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class ConnectionClient {
     private final Logger log;
     private String serverAddress;
-    private final int timeoutInSeconds;
-    private final HttpClient client;
+    private final CloseableHttpClient client;
 
-    final java.net.http.HttpClient.Version http_version = HttpClient.Version.HTTP_1_1;
 
     public ConnectionClient(String serverAddress, int timeout) {
         log = Logger.getLogger(RemoteTestReporter.class.getName());
         initURIWithDashAtTheEnd(serverAddress);
-        timeoutInSeconds = timeout;
-        client = HttpClient.newHttpClient();
+        client = HttpClients.createDefault();
     }
 
     private void initURIWithDashAtTheEnd(String uri) {
@@ -36,54 +35,74 @@ public class ConnectionClient {
             serverAddress = uri;
     }
 
-    private HttpRequest buildRequest(HttpMethod httpMethod, String endpoint, String data) {
+    private HttpUriRequestBase buildRequest(HttpMethod httpMethod, String endpoint, String data) {
         String fullURI = serverAddress + endpoint;
-        HttpRequest.Builder request = HttpRequest.newBuilder();
-        request.uri(URI.create(fullURI));
-        request.version(http_version);
-        request.timeout(Duration.of(timeoutInSeconds, SECONDS));
-        request.headers("accept", "application/json",
-                "accept", "application/text",
-                "Content-Type", "application/json");
-        HttpRequest.BodyPublisher bodyPublisher = null;
-        if (data != null) {
-            bodyPublisher = HttpRequest.BodyPublishers.
-                    ofInputStream(() -> new ByteArrayInputStream(data.getBytes()));
-        }
+        HttpUriRequestBase request;
         switch (httpMethod) {
             case POST:
-                request.POST(bodyPublisher);
+                request = new HttpPost(fullURI);
                 break;
             case PUT:
-                request.PUT(bodyPublisher);
+                request = new HttpPut(fullURI);
                 break;
             default:
                 throw new UnsupportedOperationException();
         }
-        return request.build();
+        request.setEntity(new StringEntity(data));
+        request.setHeader("Accept", "application/json");
+        request.setHeader("Content-type", "application/json");
+        return request;
+    }
+
+    private void raiseForStatus(CloseableHttpResponse response) throws IOException {
+        if (response.getCode() >= 200 && response.getCode() < 300) {
+            log.info("Response from server with code: " + response.getCode());
+        } else {
+            throw new IOException("Error from server. Code: "
+                    + response.getCode() + " Error message: " + getResponseBody(response));
+        }
+    }
+
+    private String getResponseBody(CloseableHttpResponse response) throws IOException {
+        BufferedReader rd = new BufferedReader
+                (new InputStreamReader(
+                        response.getEntity().getContent()));
+        String line;
+        StringBuilder responseStringBuilder = new StringBuilder();
+        while ((line = rd.readLine()) != null) {
+            responseStringBuilder.append(line);
+        }
+        log.info("Response body from server: " + responseStringBuilder);
+        return responseStringBuilder.toString();
     }
 
     public String sendRequest(HttpMethod httpMethod, String endpoint, String data) throws Exception {
         log.fine("Http Method: " + httpMethod + ", Endpoint: " + endpoint + ", Data to be send to server: " + data);
-        HttpRequest request = buildRequest(httpMethod, endpoint, data);
-        HttpResponse<String> response;
-        try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            String err = e.getMessage();
-            if (err == null)
-                throw new ConnectException("Server unreachable");
-            else
-                throw new Exception("Error occurred when sending request: " + err);
-        }
-        if (response.statusCode() >= 200 && response.statusCode() < 300) {
-            String responseBody = response.body();
-            if (!responseBody.equals("null"))
-                log.fine("Response from server: " + responseBody);
-            return responseBody;
-        } else {
-            throw new Exception("Error from server. CampaignStatus code: "
-                    + response.statusCode() + " Error message: " + response.body());
-        }
+        HttpUriRequestBase request = buildRequest(httpMethod, endpoint, data);
+        log.fine("Request to server: " + request.getEntity());
+        CloseableHttpResponse response = client.execute(request);
+        raiseForStatus(response);
+        return getResponseBody(response);
+    }
+
+    private HttpEntity createEntityWithImage(String pathToFile) throws FileNotFoundException {
+        File f = new File(pathToFile);
+        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+        entityBuilder.addBinaryBody(
+                "file",
+                new FileInputStream(f),
+                ContentType.APPLICATION_OCTET_STREAM,
+                f.getName()
+        );
+        return entityBuilder.build();
+    }
+
+    public void sendImage(String endpoint, String path) throws IOException {
+        log.fine("Send image to server. Endpoint: " + endpoint);
+        HttpPost uploadFileRequest = new HttpPost(serverAddress + endpoint);
+        HttpEntity entityWithImage = createEntityWithImage(path);
+        uploadFileRequest.setEntity(entityWithImage);
+        CloseableHttpResponse response = client.execute(uploadFileRequest);
+        raiseForStatus(response);
     }
 }
