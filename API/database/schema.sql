@@ -37,6 +37,7 @@ create table ScreenshotInfo(
     id SERIAL PRIMARY KEY,
     reportTime TIMESTAMP,
     path VARCHAR(30) NOT NULL,
+    screenshot BYTEA,
     testCaseID INT NOT NULL,
     CONSTRAINT FK_screenshot_testCaseID FOREIGN KEY (testCaseID)
     REFERENCES TestCase(id)

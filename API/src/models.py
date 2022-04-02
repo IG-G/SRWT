@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, LargeBinary
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -63,6 +63,7 @@ class ScreenshotInfo(Base):
     id = Column(Integer, primary_key=True)
     reportTime = Column(DateTime)
     path = Column(String(30))
+    screenshot = Column(LargeBinary)
     testCaseID = Column(Integer, ForeignKey("TestCase.id"))
 
     testCase = relationship("TestCase", back_populates="screenshotInfo")

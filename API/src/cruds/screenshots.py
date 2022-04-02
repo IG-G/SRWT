@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException
 from fastapi.params import File
 from src.logger import log
 
@@ -48,5 +48,37 @@ def get_path_given_screenshot_id(db: Session, screenshot_id: int) -> str:
 def save_screenshot(db: Session, screenshot_id: int, file: bytes = File(...)):
     path_to_save = get_path_given_screenshot_id(db, screenshot_id)
     log.info(f"Path to file: {path_to_save}")
-    with open(path_to_save, "wb+") as f:
-        f.write(file)
+    result = (
+        db.query(models.ScreenshotInfo)
+        .filter(screenshot_id == models.ScreenshotInfo.id)
+        .update(values={models.ScreenshotInfo.screenshot: file})
+    )
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Screenshot with id: {screenshot_id} cannot be save in database",
+        )
+    db.commit()
+
+
+def retrieve_screenshot_from_database(db: Session, screenshot_id: int) -> bytes:
+    """
+    To save file locally
+    with open(
+        get_path_given_screenshot_id(db=db, screenshot_id=screenshot_id), "wb+"
+    ) as f:
+        f.write(retrieve_screenshot_from_database(db, screenshot_id))
+    """
+
+    log.info(f"Requested file: {screenshot_id}")
+    result = (
+        db.query(models.ScreenshotInfo)
+        .filter(screenshot_id == models.ScreenshotInfo.id)
+        .first()
+    )
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Screenshot with id: {screenshot_id} cannot be save in database",
+        )
+    return result.screenshot
