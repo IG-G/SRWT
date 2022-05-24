@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>{{campaign_name}}: {{testcase.testCaseName}}</h2>
+       <table>
+        <tr>
+            <th>Beginning time</th>
+            <th>{{testcase.begTime}}</th>
+        </tr>
+        <tr>
+            <th>End time</th>
+            <th>{{testcase.endTime}}</th>
+        </tr>
+        <tr>
+            <th>Duration</th>
+            <th>{{testcase.duration}}</th>
+        </tr>
+        </table>
+        {{fails | safe}}
+        {{logs | safe}}
+        {{screenshots | safe}}
+{% endblock %}
