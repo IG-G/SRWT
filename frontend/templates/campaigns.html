@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+       <table>
+        <tr>
+            <th>ID</th>
+            <th>Campaign Name</th>
+            <th>Environment Name</th>
+            <th>Beginning Time</th>
+            <th>Ending Time</th>
+            <th>Duration</th>
+            <th>Status</th>
+        </tr>
+        {% for r in result %}
+        <tr>
+            <td>{{ r['testCampaignID'] }}</td>
+            <td><a href="{{ url_for('get_campaign_report', campaign_id=r['testCampaignID']) }}">{{ r['campaignName'] }}</a></td>
+            <td>{{ r['envName'] }}</td>
+            <td>{{ r['begTime'] }}</td>
+            <td>{{ r['endTime'] }}</td>
+            <td>{{ r['duration'] }}</td>
+            <td>{{ r['status'] }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+{% endblock %}

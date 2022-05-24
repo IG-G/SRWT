@@ -1,0 +1,27 @@
+nav a {
+    color: #d64161;
+    font-size: 3em;
+    margin-left: 50px;
+    text-decoration: none;
+}
+
+img {
+    max-width: 80%;
+    height: auto
+}
+
+.small_img {
+    max-width: 50%;
+    height: auto
+}
+
+table {
+    text-align:center;
+    border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid #999;
+  padding: 0.5rem;
+}
+

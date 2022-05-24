@@ -1,0 +1,9 @@
+{
+  "baseURI": "http://localhost:8000/",
+  "enableDebugLogs": "true",
+  "publishLogsLocally": "true",
+  "campaignName": "Example test for web page",
+  "testEnvironment": "Local env",
+  "user": "user",
+  "password": "password"
+}
