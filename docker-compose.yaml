@@ -1,11 +1,11 @@
 version: '3'
 services:
   postgres-server:
-    image: i2gy/remote-test-reporter-database:2.2
+    image: rtr-db:1.0
     environment:
      - POSTGRES_PASSWORD=pass
   api-server:
-    image: i2gy/remote-test-reporter-server:2.2
+    image: rtr-server:1.0
     ports:
       - "8000:8000"
     environment:
@@ -15,7 +15,7 @@ services:
       - admin_password=password
     restart: always
   frontend:
-    image: i2gy/remote-test-reporter-frontend:2.2
+    image: rtr-frontend:1.0
     ports:
       - "5000:5000"
     environment:
