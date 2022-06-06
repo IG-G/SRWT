@@ -25,7 +25,7 @@ public class AppTest {
         reporter = new RemoteTestReporter("src/test/resources/conf.json");
         reporter.beginTestCampaign();
 
-        System.setProperty("webdriver.gecko.driver", "src/test/resources/geckodriver");
+        System.setProperty("webdriver.gecko.driver", "src/test/resources/geckodriver.exe");
     }
 
     @BeforeEach
